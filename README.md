@@ -1,553 +1,566 @@
-<<<<<<< HEAD
-# events-academic
-=======
-# TiqueteraCatalogo
+# TiqueteraCatalogo - Sistema de Gestión de Eventos
 
-Catálogo de Eventos y Venues (Spring Boot 3) con almacenamiento en memoria, documentación OpenAPI/Swagger y arquitectura en capas Controller → Service → Repository.
+[![Java](https://img.shields.io/badge/Java-17-orange)](https://www.oracle.com/java/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.7-brightgreen)](https://spring.io/projects/spring-boot)
+[![Architecture](https://img.shields.io/badge/Architecture-Hexagonal-blue)](https://en.wikipedia.org/wiki/Hexagonal_architecture_(software))
+[![SOLID](https://img.shields.io/badge/Principles-SOLID-purple)](https://en.wikipedia.org/wiki/SOLID)
 
-## Índice
-- [Resumen](#resumen)
-- [Arquitectura](#arquitectura)
-- [Cómo ejecutar](#cómo-ejecutar)
-- [Swagger / OpenAPI](#swagger--openapi)
-- [Endpoints](#endpoints)
-- [Manejo de errores](#manejo-de-errores)
-- [Clases y código explicado línea por línea](#clases-y-código-explicado-línea-por-línea)
-  - [TiqueteraCatalogoApplication](#tiqueteracatalogoapplication)
-  - [OpenApiConfig](#openapiconfig)
-  - [DTOs](#dtos)
-    - [EventDTO](#eventdto)
-    - [VenueDTO](#venuedto)
-  - [Repositorios (simulados en memoria)](#repositorios-simulados-en-memoria)
-    - [EventRepository](#eventrepository)
-    - [VenueRepository](#venuerepository)
-  - [Servicios](#servicios)
-    - [EventService](#eventservice)
-    - [VenueService](#venueservice)
-  - [Controladores](#controladores)
-    - [EventController](#eventcontroller)
-    - [VenueController](#venuecontroller)
-  - [Excepciones y errores](#excepciones-y-errores)
-    - [ErrorResponse](#errorresponse)
-    - [GlobalExceptionHandler](#globalexceptionhandler)
-    - [ResourceNotFoundException](#resourcenotfoundexception)
-- [Pruebas rápidas con cURL](#pruebas-rápidas-con-curl)
-- [Notas y mejoras futuras](#notas-y-mejoras-futuras)
-
-## Resumen
-Proyecto Java 17 con Spring Boot 3.5.7. Implementa:
-- CRUD completo para Eventos y Venues.
-- Almacenamiento en memoria durante la ejecución (sin base de datos).
-- Documentación OpenAPI/Swagger con ejemplos y schemas.
-- Manejo global de errores (400/404/500) y validaciones (Bean Validation).
-- Arquitectura en capas (Controller → Service → Repository).
-
-## Arquitectura
-```
-controller/   → Recibe HTTP, valida, mapea códigos HTTP y documenta Swagger.
-service/      → Lógica de negocio, orquesta repositorios.
-repository/   → Simula persistencia en ArrayList, genera IDs (AtomicLong).
-DTO/          → Modelos de transferencia validados y documentados.
-exception/    → Excepciones, modelo de error y manejador global.
-config/       → Configuración de OpenAPI/Swagger.
-```
-
-## Cómo ejecutar
-Requisitos: Java 17. Desde PowerShell en Windows:
-
-```powershell
-# Compilar
-cd c:\Users\anonimo\Videos\TiqueteraCatalogo\TiqueteraCatalogo
-./mvnw.cmd clean compile
-
-# Ejecutar
-./mvnw.cmd spring-boot:run
-```
-
-- App: http://localhost:8080
-- Swagger UI: http://localhost:8080/swagger-ui.html
-- OpenAPI JSON: http://localhost:8080/v3/api-docs
-
-> Si PowerShell no reconoce `./mvnw.cmd`, usa:
-> ```powershell
-> & ".\mvnw.cmd" spring-boot:run
-> ```
-
-## Swagger / OpenAPI
-La clase `config/OpenApiConfig.java` define metadatos (título, versión, contacto, licencia) y servidores. Los controladores usan anotaciones `@Operation`, `@ApiResponses`, `@Parameter` y ejemplos para request/response. Los DTOs tienen `@Schema` por campo.
-
-## Endpoints
-Eventos `/api/events` y Venues `/api/venues` con operaciones: GET (all, by id), POST, PUT, DELETE y búsqueda por relación (events by venue).
-
-## Manejo de errores
-- 400 Bad Request: validación y tipos incorrectos.
-- 404 Not Found: recurso no encontrado.
-- 500 Internal Server Error: genérico.
-
-Formato unificado `ErrorResponse` con `timestamp`, `status`, `error`, `message`, `path` y opcional `details`.
+Sistema de gestión de eventos y venues implementado con **Arquitectura Hexagonal** y **principios SOLID**, utilizando Spring Boot 3, JPA/Hibernate y H2 Database.
 
 ---
 
-## Clases y código explicado línea por línea
+## 📋 Tabla de Contenidos
 
-> Nota: Para brevedad, en imports se explica el bloque completo. El detalle línea a línea se centra en el cuerpo de las clases y métodos.
+- [Características](#-características)
+- [Arquitectura](#-arquitectura)
+- [Tecnologías](#-tecnologías)
+- [Estructura del Proyecto](#-estructura-del-proyecto)
+- [Instalación y Ejecución](#-instalación-y-ejecución)
+- [API Endpoints](#-api-endpoints)
+- [Documentación Swagger](#-documentación-swagger)
+- [Principios de Diseño](#-principios-de-diseño)
+- [Ejemplos de Uso](#-ejemplos-de-uso)
 
-### TiqueteraCatalogoApplication
-Archivo: `src/main/java/.../TiqueteraCatalogoApplication.java`
-```java
-@SpringBootApplication          // Habilita autoconfiguración, escaneo de componentes y configuración
-public class TiqueteraCatalogoApplication {
+---
 
-    public static void main(String[] args) {
-        SpringApplication.run(TiqueteraCatalogoApplication.class, args); // Arranca la app Spring Boot
-    }
-}
+## ✨ Características
+
+- ✅ **CRUD completo** para Eventos y Venues
+- ✅ **Arquitectura Hexagonal** (Ports & Adapters)
+- ✅ **Principios SOLID** aplicados en todo el código
+- ✅ **Base de datos H2** en memoria
+- ✅ **Documentación OpenAPI/Swagger** completa
+- ✅ **Validaciones** con Bean Validation
+- ✅ **Manejo de errores** centralizado y seguro
+- ✅ **DTOs** para request/response
+- ✅ **Mappers** para conversión entre capas
+- ✅ **Services** para orquestación de casos de uso
+
+---
+
+## 🏗️ Arquitectura
+
+Este proyecto implementa **Arquitectura Hexagonal** (también conocida como Ports and Adapters), que separa la lógica de negocio de los detalles de implementación.
+
+### Capas Principales
+
+```
+src/main/java/com/codeup/riwi/tiqueteracatalogo/
+│
+├── 📦 dominio/                    # CAPA DE DOMINIO
+│   ├── models/                    # Modelos de dominio puros (sin frameworks)
+│   │   ├── Evento.java
+│   │   └── Venue.java
+│   ├── ports/                     # Interfaces (contratos)
+│   │   ├── in/                    # Puertos de entrada (futuros)
+│   │   └── out/                   # Puertos de salida
+│   │       ├── EventoRepositoryPort.java
+│   │       └── VenueRepositoryPort.java
+│   └── excepcion/                 # Excepciones de dominio
+│       └── RecursoNoEncontradoException.java
+│
+├── 📦 aplicacion/                 # CAPA DE APLICACIÓN
+│   ├── usecases/                  # Casos de uso (lógica de negocio)
+│   │   ├── evento/
+│   │   │   ├── CrearEventoUseCase.java
+│   │   │   ├── ObtenerEventoUseCase.java
+│   │   │   ├── ListarEventosUseCase.java
+│   │   │   ├── ActualizarEventoUseCase.java
+│   │   │   └── EliminarEventoUseCase.java
+│   │   └── venue/
+│   │       └── ... (mismos casos de uso)
+│   ├── services/                  # Services (orquestación)
+│   │   ├── EventoService.java
+│   │   └── VenueService.java
+│   ├── dto/                       # Data Transfer Objects
+│   │   ├── EventoRequest.java
+│   │   ├── EventoResponse.java
+│   │   ├── VenueRequest.java
+│   │   └── VenueResponse.java
+│   └── mapper/                    # Mappers (DTO ↔ Domain)
+│       ├── EventoMapper.java
+│       └── VenueMapper.java
+│
+└── 📦 infraestructura/            # CAPA DE INFRAESTRUCTURA
+    ├── controllers/               # Controladores REST
+    │   ├── EventController.java
+    │   ├── VenueController.java
+    │   └── advice/                # Exception handlers
+    │       ├── GlobalExceptionHandler.java
+    │       └── ErrorResponse.java
+    ├── adapters/                  # Adaptadores (implementan puertos)
+    │   ├── EventoRepositoryAdapter.java
+    │   └── VenueRepositoryAdapter.java
+    ├── repositories/              # Repositorios JPA
+    │   ├── EventoJpaRepository.java
+    │   └── VenueJpaRepository.java
+    ├── entities/                  # Entidades JPA
+    │   ├── EventoJpaEntity.java
+    │   └── VenueJpaEntity.java
+    └── config/                    # Configuración
+        ├── OpenApiConfig.java
+        └── UseCaseConfiguration.java
 ```
 
-### OpenApiConfig
-Archivo: `config/OpenApiConfig.java`
-```java
-@Configuration                       // Marca como clase de configuración Spring
-@Bean                                // Expone un bean OpenAPI para springdoc
-public OpenAPI customOpenAPI() {
-    return new OpenAPI()
-        .info(new Info()
-            .title("API Catálogo de Eventos y Venues") // Título mostrado en Swagger UI
-            .version("1.0.0")                         // Versión del API
-            .description("API REST para gestionar catálogo...") // Descripción general
-            .contact(new Contact().name("Equipo Tiquetera").email("soporte@tiquetera.com"))
-            .license(new License().name("Apache 2.0").url("https://www.apache.org/licenses/LICENSE-2.0.html")))
-        .servers(List.of(                              // Lista de servidores publicados en la doc
-            new Server().url("http://localhost:8080").description("Servidor de Desarrollo"),
-            new Server().url("http://localhost:8081").description("Servidor de Pruebas")));
-}
+### Flujo de Datos
+
+```
+HTTP Request
+     ↓
+[Controller] ← Adaptador de Entrada
+     ↓
+[Use Case] ← Lógica de Negocio (usa Puertos)
+     ↓
+[Repository Port] ← Interface (Puerto de Salida)
+     ↓
+[Repository Adapter] ← Implementación del Puerto
+     ↓
+[JPA Repository] ← Persistencia
+     ↓
+[H2 Database]
 ```
 
-### DTOs
-#### EventDTO
-Archivo: `DTO/EventDTO.java`
-```java
-@Schema(description = "Información del evento")                 // Documenta el schema del recurso
-public class EventDTO {
-    @Schema(..., accessMode = READ_ONLY) private Long id;        // ID autogenerado por repo (solo lectura)
+---
 
-    @NotBlank(message = "El nombre...")                          // Validación: obligatorio
-    @Schema(description = "Nombre...", example = "Concierto Rock 2025", required = true)
+## 🛠️ Tecnologías
+
+| Tecnología | Versión | Propósito |
+|------------|---------|-----------|
+| Java | 17 | Lenguaje de programación |
+| Spring Boot | 3.5.7 | Framework principal |
+| Spring Data JPA | 3.5.7 | Persistencia de datos |
+| H2 Database | 2.3.232 | Base de datos en memoria |
+| Hibernate | 6.6.33 | ORM |
+| Springdoc OpenAPI | 2.7.0 | Documentación Swagger |
+| Lombok | 1.18.36 | Reducción de boilerplate |
+| Bean Validation | 3.0 | Validaciones |
+| Maven | 3.9+ | Gestión de dependencias |
+
+---
+
+## 📁 Estructura del Proyecto
+
+### Dominio (Núcleo del Negocio)
+
+**Características:**
+- ✅ Sin dependencias de frameworks
+- ✅ Modelos puros (POJOs)
+- ✅ Define interfaces (puertos)
+- ✅ Contiene excepciones de negocio
+
+**Ejemplo:**
+```java
+// Modelo de dominio puro
+public class Evento {
+    private Long id;
     private String name;
-
-    @Schema(description = "Descripción...")
-    private String description;                                   // Texto opcional descriptivo
-
-    @NotNull(message = "La fecha...")                           // Validación: obligatorio
-    @Schema(description = "Fecha y hora...", example = "2025-12-15T20:00:00", required = true)
     private LocalDateTime eventDate;
+    // ... sin anotaciones de JPA
+}
 
-    @NotNull(message = "El venue ID...")                        // Validación: obligatorio
-    @Schema(description = "ID del venue...", example = "1", required = true)
-    private Long venueId;
-
-    @Positive(message = "La capacidad...")                      // Validación: > 0
-    @Schema(description = "Capacidad máxima...", example = "1000", required = true)
-    private Integer capacity;
-
-    @Positive(message = "El precio...")                         // Validación: > 0
-    @Schema(description = "Precio de la entrada", example = "80000.00", required = true)
-    private Double price;
-
-    // Getters/Setters estándar para serialización JSON y binding
+// Puerto (interface)
+public interface EventoRepositoryPort {
+    Evento save(Evento evento);
+    Optional<Evento> findById(Long id);
+    // ...
 }
 ```
 
-#### VenueDTO
-Archivo: `DTO/VenueDTO.java`
+### Aplicación (Casos de Uso)
+
+**Características:**
+- ✅ Contiene la lógica de negocio
+- ✅ Depende solo de puertos (interfaces)
+- ✅ Independiente de frameworks
+- ✅ Services orquestan use cases
+
+**Ejemplo:**
 ```java
-@Schema(description = "Información del venue/lugar")
-public class VenueDTO {
-    @Schema(..., accessMode = READ_ONLY) private Long id;        // ID autogenerado por repo
-
-    @NotBlank(message = "El nombre...")
-    @Schema(description = "Nombre del venue", example = "Teatro Nacional", required = true)
-    private String name;
-
-    @NotBlank(message = "La dirección...")
-    @Schema(description = "Dirección...", example = "Calle 71 #10-25", required = true)
-    private String address;
-
-    @NotBlank(message = "La ciudad...")
-    @Schema(description = "Ciudad...", example = "Bogotá", required = true)
-    private String city;
-
-    @NotBlank(message = "El país...")
-    @Schema(description = "País...", example = "Colombia", required = true)
-    private String country;
-
-    @Positive(message = "La capacidad...")
-    @Schema(description = "Capacidad máxima...", example = "1500", required = true)
-    private Integer capacity;
-}
-```
-
-### Repositorios (simulados en memoria)
-#### EventRepository
-Archivo: `repository/EventRepository.java`
-```java
-@Repository                                        // Detectado como bean de acceso a datos
-public class EventRepository {
-    private final List<EventDTO> events = new ArrayList<>();     // Almacenamiento en memoria
-    private final AtomicLong idGenerator = new AtomicLong(1);    // Secuencia de IDs thread-safe
-
-    public List<EventDTO> findAll() {                            // Lee todo
-        return new ArrayList<>(events);                          // Copia defensiva
-    }
-
-    public Optional<EventDTO> findById(Long id) {                // Búsqueda por ID
-        return events.stream().filter(e -> e.getId().equals(id)).findFirst();
-    }
-
-    public List<EventDTO> findByVenueId(Long venueId) {          // Consulta por relación
-        return events.stream().filter(e -> e.getVenueId().equals(venueId)).toList();
-    }
-
-    public EventDTO save(EventDTO event) {                       // Inserción
-        if (event.getId() == null) event.setId(idGenerator.getAndIncrement());
-        events.add(event);
-        return event;
-    }
-
-    public EventDTO update(EventDTO event) {                      // Actualización in-place
-        return findById(event.getId()).map(db -> {
-            db.setName(event.getName());
-            db.setDescription(event.getDescription());
-            db.setEventDate(event.getEventDate());
-            db.setVenueId(event.getVenueId());
-            db.setCapacity(event.getCapacity());
-            db.setPrice(event.getPrice());
-            return db;                                           // Devuelve referencia actualizada
-        }).orElse(null);                                         // Convenio simple para este ejemplo
-    }
-
-    public boolean deleteById(Long id) {                          // Eliminación por ID
-        return events.removeIf(e -> e.getId().equals(id));
-    }
-
-    public boolean existsById(Long id) {                          // Existencia
-        return events.stream().anyMatch(e -> e.getId().equals(id));
-    }
-
-    public long count() { return events.size(); }                 // Conteo total
-}
-```
-
-#### VenueRepository
-Archivo: `repository/VenueRepository.java` (mismo patrón que `EventRepository`)
-
-### Servicios
-#### EventService
-Archivo: `service/EventService.java`
-```java
-@Service                                         // Bean de servicio (lógica de negocio)
-public class EventService {
-    private final EventRepository eventRepository;               // Inyección por constructor
-
-    public EventService(EventRepository eventRepository) {
-        this.eventRepository = eventRepository;                  // Asigna dependencia
-    }
-
-    public List<EventDTO> getAllEvents() { return eventRepository.findAll(); }
-    public Optional<EventDTO> getEventById(Long id) { return eventRepository.findById(id); }
-    public EventDTO createEvent(EventDTO dto) { return eventRepository.save(dto); }
-
-    public Optional<EventDTO> updateEvent(Long id, EventDTO dto) {
-        if (!eventRepository.existsById(id)) return Optional.empty();
-        dto.setId(id);                                           // Garantiza idempotencia por ID
-        return Optional.ofNullable(eventRepository.update(dto)); // Puede ser null si no existe
-    }
-
-    public boolean deleteEvent(Long id) { return eventRepository.deleteById(id); }
-    public List<EventDTO> getEventsByVenueId(Long venueId) { return eventRepository.findByVenueId(venueId); }
-}
-```
-
-#### VenueService
-Archivo: `service/VenueService.java` (idéntico patrón a `EventService`).
-
-### Controladores
-#### EventController
-Archivo: `controller/EventController.java`
-```java
-@RestController                              // Marca controlador REST (JSON por defecto)
-@RequestMapping("/api/events")               // Prefijo de todos los endpoints
-@Tag(name = "Events", description = "API para gestión de eventos") // Agrupa en Swagger
-public class EventController {
-    private final EventService eventService; // Inyección del servicio
-
-    public EventController(EventService eventService) { this.eventService = eventService; }
-
-    @Operation(summary = "Obtener todos...", description = "Retorna lista completa...")
-    @ApiResponses({ @ApiResponse(responseCode = "200", ... ) })
-    @GetMapping
-    public ResponseEntity<List<EventDTO>> getAllEvents() {
-        return ResponseEntity.ok(eventService.getAllEvents());
-    }
-
-    @Operation(summary = "Obtener evento por ID", description = "...")
-    @ApiResponses({
-      @ApiResponse(responseCode = "200", ...),
-      @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @GetMapping("/{id}")
-    public ResponseEntity<EventDTO> getEventById(@Parameter(...) @PathVariable Long id) {
-        return eventService.getEventById(id)
-            .map(ResponseEntity::ok)
-            .orElseThrow(() -> new ResourceNotFoundException("Evento", id)); // Lanza 404 si no existe
-    }
-
-    @Operation(summary = "Crear nuevo evento", description = "...")
-    @ApiResponses({
-      @ApiResponse(responseCode = "201", ...),
-      @ApiResponse(responseCode = "400", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @PostMapping
-    public ResponseEntity<EventDTO> createEvent(@Valid @RequestBody EventDTO eventDTO) {
-        EventDTO created = eventService.createEvent(eventDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
-    }
-
-    @Operation(summary = "Actualizar evento", description = "...")
-    @PutMapping("/{id}")
-    public ResponseEntity<EventDTO> updateEvent(@PathVariable Long id, @Valid @RequestBody EventDTO eventDTO) {
-        return eventService.updateEvent(id, eventDTO)
-            .map(ResponseEntity::ok)
-            .orElseThrow(() -> new ResourceNotFoundException("Evento", id));
-    }
-
-    @Operation(summary = "Eliminar evento", description = "...")
-    @ApiResponses({ @ApiResponse(responseCode = "204", description = "Evento eliminado") })
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEvent(@PathVariable Long id) {
-        if (!eventService.deleteEvent(id)) throw new ResourceNotFoundException("Evento", id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @Operation(summary = "Obtener eventos por venue", description = "...")
-    @GetMapping("/venue/{venueId}")
-    public ResponseEntity<List<EventDTO>> getEventsByVenueId(@PathVariable Long venueId) {
-        return ResponseEntity.ok(eventService.getEventsByVenueId(venueId));
+public class CrearEventoUseCase {
+    private final EventoRepositoryPort eventoRepository;
+    private final VenueRepositoryPort venueRepository;
+    
+    public Evento ejecutar(Evento evento) {
+        // Validación de negocio
+        if (!venueRepository.existsById(evento.getVenueId())) {
+            throw new IllegalArgumentException("El venue no existe");
+        }
+        return eventoRepository.save(evento);
     }
 }
 ```
 
-#### VenueController
-Archivo: `controller/VenueController.java` (mismo patrón que `EventController`).
+### Infraestructura (Detalles de Implementación)
 
-### Excepciones y errores
-#### ErrorResponse
-Archivo: `exception/ErrorResponse.java`
+**Características:**
+- ✅ Implementa los puertos
+- ✅ Contiene detalles técnicos (JPA, REST, etc.)
+- ✅ Adaptadores intercambiables
+- ✅ Controllers, Repositories, Entities
+
+**Ejemplo:**
 ```java
-@Schema(description = "Respuesta de error estándar de la API")
-public class ErrorResponse {
-    private LocalDateTime timestamp = LocalDateTime.now();  // Sello temporal al construir
-    private int status;                                     // Código HTTP (400/404/500)
-    private String error;                                   // Texto corto: Bad Request/Not Found/...
-    private String message;                                 // Mensaje legible del problema
-    private String path;                                    // Endpoint que falló
-    private List<String> details;                           // Detalles (p.ej. campos inválidos)
-
-    // Constructores + getters/setters estándar
-}
-```
-
-#### GlobalExceptionHandler
-Archivo: `exception/GlobalExceptionHandler.java`
-```java
-@RestControllerAdvice                             // Atrapador global de excepciones
-public class GlobalExceptionHandler {
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationExceptions(...) {
-        // Recorre FieldError y arma lista "campo: mensaje"
-        // Devuelve 400 con ErrorResponse + details
-    }
-
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ErrorResponse> handleTypeMismatch(...) {
-        // Param tipo incorrecto en path/query → 400 con mensaje "parámetro X debe ser de tipo Y"
-    }
-
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleResourceNotFound(...) {
-        // Devuelve 404 con mensaje de la excepción
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGenericException(...) {
-        // Falla inesperada → 500 mensaje genérico
-    }
-}
-```
-
-#### ResourceNotFoundException
-Archivo: `exception/ResourceNotFoundException.java`
-```java
-public class ResourceNotFoundException extends RuntimeException {
-    public ResourceNotFoundException(String message) { super(message); }
-    public ResourceNotFoundException(String resource, Long id) {
-        super(String.format("%s con ID %d no encontrado", resource, id));
+@Component
+public class EventoRepositoryAdapter implements EventoRepositoryPort {
+    private final EventoJpaRepository jpaRepository;
+    
+    @Override
+    public Evento save(Evento evento) {
+        EventoJpaEntity entity = toEntity(evento);
+        EventoJpaEntity saved = jpaRepository.save(entity);
+        return toDomain(saved);
     }
 }
 ```
 
 ---
 
-## Pruebas rápidas con cURL
+## 🚀 Instalación y Ejecución
 
-### 1. Crear un Venue primero (necesario para eventos)
+### Requisitos Previos
+
+- Java 17 o superior
+- Maven 3.9+ (incluido en el proyecto como `mvnw`)
+
+### Pasos
+
+1. **Clonar el repositorio**
 ```bash
-curl -X POST http://localhost:8080/api/venues \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Teatro Nacional","address":"Calle 71 #10-25","city":"Bogotá","country":"Colombia","capacity":1500}'
-```
-**Respuesta esperada (201 Created):**
-```json
-{"id":1,"name":"Teatro Nacional","address":"Calle 71 #10-25","city":"Bogotá","country":"Colombia","capacity":1500}
+git clone https://github.com/tu-usuario/TiqueteraCatalogo.git
+cd TiqueteraCatalogo
 ```
 
-### 2. Crear un Evento (usa el venueId=1 del paso anterior)
+2. **Compilar el proyecto**
 ```bash
-curl -X POST http://localhost:8080/api/events \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Concierto Rock","description":"Gran show de rock","eventDate":"2025-12-15T20:00:00","venueId":1,"capacity":1000,"price":80000}'
-```
-**Respuesta esperada (201 Created):**
-```json
-{"id":1,"name":"Concierto Rock","description":"Gran show de rock","eventDate":"2025-12-15T20:00:00","venueId":1,"capacity":1000,"price":80000.0}
+./mvnw clean compile
 ```
 
-### 3. Listar todos los recursos
+3. **Ejecutar la aplicación**
 ```bash
-# Listar eventos
-curl http://localhost:8080/api/events
-
-# Listar venues
-curl http://localhost:8080/api/venues
+./mvnw spring-boot:run
 ```
 
-### 4. Obtener por ID (ahora que existen)
+4. **Verificar que está corriendo**
+- Aplicación: http://localhost:8080
+- Swagger UI: http://localhost:8080/swagger-ui.html
+- H2 Console: http://localhost:8080/h2-console
+
+---
+
+## 📡 API Endpoints
+
+### Eventos (`/api/events`)
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | `/api/events` | Listar todos los eventos |
+| GET | `/api/events/{id}` | Obtener evento por ID |
+| GET | `/api/events/venue/{venueId}` | Listar eventos por venue |
+| POST | `/api/events` | Crear nuevo evento |
+| PUT | `/api/events/{id}` | Actualizar evento |
+| DELETE | `/api/events/{id}` | Eliminar evento |
+
+### Venues (`/api/venues`)
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | `/api/venues` | Listar todos los venues |
+| GET | `/api/venues/{id}` | Obtener venue por ID |
+| POST | `/api/venues` | Crear nuevo venue |
+| PUT | `/api/venues/{id}` | Actualizar venue |
+| DELETE | `/api/venues/{id}` | Eliminar venue |
+
+---
+
+## 📚 Documentación Swagger
+
+Accede a la documentación interactiva en: **http://localhost:8080/swagger-ui.html**
+
+Características de la documentación:
+- ✅ Ejemplos de request/response
+- ✅ Schemas detallados
+- ✅ Códigos de respuesta HTTP
+- ✅ Validaciones documentadas
+- ✅ Pruebas en vivo ("Try it out")
+
+---
+
+## 🎯 Principios de Diseño
+
+### Arquitectura Hexagonal ✅
+
+1. **Dominio en el centro**: La lógica de negocio no depende de frameworks
+2. **Puertos**: Interfaces que definen contratos
+3. **Adaptadores**: Implementaciones intercambiables
+4. **Inversión de dependencias**: Infraestructura depende del dominio
+
+### Principios SOLID ✅
+
+#### 1. Single Responsibility Principle (SRP)
+Cada clase tiene una única responsabilidad:
+- `CrearEventoUseCase`: Solo crear eventos
+- `EventoRepositoryAdapter`: Solo adaptar persistencia
+- `EventController`: Solo manejar HTTP
+
+#### 2. Open/Closed Principle (OCP)
+Abierto para extensión, cerrado para modificación:
+```java
+// Podemos agregar nuevos adaptadores sin modificar casos de uso
+public class EventoMongoAdapter implements EventoRepositoryPort { }
+public class EventoRedisAdapter implements EventoRepositoryPort { }
+```
+
+#### 3. Liskov Substitution Principle (LSP)
+Los adaptadores son intercambiables:
+```java
+EventoRepositoryPort repo = new EventoRepositoryAdapter();  // JPA
+EventoRepositoryPort repo = new EventoMongoAdapter();       // MongoDB
+// El caso de uso funciona con cualquiera
+```
+
+#### 4. Interface Segregation Principle (ISP)
+Interfaces específicas y cohesivas:
+```java
+public interface EventoRepositoryPort { /* solo métodos de eventos */ }
+public interface VenueRepositoryPort { /* solo métodos de venues */ }
+```
+
+#### 5. Dependency Inversion Principle (DIP)
+Dependencias en abstracciones:
+```java
+public class CrearEventoUseCase {
+    private final EventoRepositoryPort repository;  // ✅ Interface
+    // NO: private final EventoRepositoryAdapter repository;  // ❌ Implementación
+}
+```
+
+---
+
+## 💡 Ejemplos de Uso
+
+### 1. Crear un Venue
+
+**Request:**
 ```bash
-curl http://localhost:8080/api/events/1
-curl http://localhost:8080/api/venues/1
+POST http://localhost:8080/api/venues
+Content-Type: application/json
+
+{
+  "name": "Teatro Nacional",
+  "address": "Calle 71 #10-25",
+  "city": "Bogotá",
+  "country": "Colombia",
+  "capacity": 1500
+}
 ```
 
-### 5. Actualizar un Venue (PUT con TODOS los campos)
-```bash
-curl -X PUT http://localhost:8080/api/venues/1 \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Teatro Nacional Renovado","address":"Calle 71 #10-25","city":"Bogotá","country":"Colombia","capacity":2000}'
-```
-**⚠️ IMPORTANTE:** PUT requiere todos los campos obligatorios (`name`, `address`, `city`, `country`, `capacity`).
-
-### 6. Actualizar un Evento
-```bash
-curl -X PUT http://localhost:8080/api/events/1 \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Concierto Rock Actualizado","description":"Show renovado","eventDate":"2025-12-15T21:00:00","venueId":1,"capacity":1200,"price":90000}'
-```
-
-### 7. Eliminar recursos
-```bash
-curl -X DELETE http://localhost:8080/api/events/1
-curl -X DELETE http://localhost:8080/api/venues/1
-```
-**Respuesta esperada:** 204 No Content (sin body)
-
-### 8. Buscar eventos por venue
-```bash
-curl http://localhost:8080/api/events/venue/1
-```
-
-## ❌ Errores comunes y cómo evitarlos
-
-### Error 404: "Evento con ID X no encontrado"
-**Causa:** Intentas acceder/actualizar/eliminar un recurso que no existe.
-```bash
-# ❌ MAL - ID 999 no existe
-curl http://localhost:8080/api/events/999
-```
-**Solución:** Verifica que el recurso existe primero con GET /api/events
-
-### Error 400: Validación fallida
-**Causa 1:** Faltan campos obligatorios en PUT
-```bash
-# ❌ MAL - Faltan campos obligatorios
-curl -X PUT http://localhost:8080/api/venues/1 \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Solo nombre"}'
-```
-**Solución:** Envía TODOS los campos requeridos.
-
-**Causa 2:** Valores inválidos
-```bash
-# ❌ MAL - capacity negativa
-curl -X POST http://localhost:8080/api/venues \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Teatro","address":"Calle 1","city":"Bogotá","country":"Colombia","capacity":-100}'
-```
-**Solución:** Usa valores positivos para `capacity` y `price`.
-
-**Causa 3:** Campos vacíos
-```bash
-# ❌ MAL - name vacío
-curl -X POST http://localhost:8080/api/venues \
-  -H "Content-Type: application/json" \
-  -d '{"name":"","address":"Calle 1","city":"Bogotá","country":"Colombia","capacity":500}'
-```
-**Solución:** No envíes strings vacíos en campos `@NotBlank`.
-
-## 🔍 Ver respuestas de error
-
-### Ejemplo de error 404:
+**Response (201 Created):**
 ```json
 {
-  "timestamp": "2025-10-28T11:04:57",
+  "id": 1,
+  "name": "Teatro Nacional",
+  "address": "Calle 71 #10-25",
+  "city": "Bogotá",
+  "country": "Colombia",
+  "capacity": 1500
+}
+```
+
+### 2. Crear un Evento
+
+**Request:**
+```bash
+POST http://localhost:8080/api/events
+Content-Type: application/json
+
+{
+  "name": "Concierto Rock",
+  "description": "Gran concierto de rock",
+  "eventDate": "2025-12-15T20:00:00",
+  "categoria": "Música",
+  "venueId": 1,
+  "capacity": 1000,
+  "price": 80000.0
+}
+```
+
+**Response (201 Created):**
+```json
+{
+  "id": 1,
+  "name": "Concierto Rock",
+  "description": "Gran concierto de rock",
+  "eventDate": "2025-12-15T20:00:00",
+  "categoria": "Música",
+  "venueId": 1,
+  "capacity": 1000,
+  "price": 80000.0
+}
+```
+
+### 3. Listar Eventos por Venue
+
+**Request:**
+```bash
+GET http://localhost:8080/api/events/venue/1
+```
+
+**Response (200 OK):**
+```json
+[
+  {
+    "id": 1,
+    "name": "Concierto Rock",
+    "eventDate": "2025-12-15T20:00:00",
+    "venueId": 1,
+    ...
+  }
+]
+```
+
+### 4. Manejo de Errores
+
+**Error 404 - Recurso no encontrado:**
+```json
+{
+  "timestamp": "2025-11-25T10:00:00",
   "status": 404,
   "error": "Not Found",
-  "message": "Evento con ID 1 no encontrado",
-  "path": "/api/events/1"
+  "message": "Evento con ID 999 no encontrado",
+  "path": "/api/events/999"
 }
 ```
 
-### Ejemplo de error 400 (validación):
+**Error 400 - Validación:**
 ```json
 {
-  "timestamp": "2025-10-28T11:11:26",
+  "timestamp": "2025-11-25T10:00:00",
   "status": 400,
   "error": "Bad Request",
-  "message": "Error de validación en los datos enviados",
-  "path": "/api/venues/1",
-  "details": [
-    "address: La dirección es obligatoria",
-    "country: El país es obligatorio",
-    "city: La ciudad es obligatoria"
-  ]
+  "message": "Validation failed",
+  "path": "/api/events",
+  "details": {
+    "name": "El nombre del evento es obligatorio",
+    "eventDate": "La fecha del evento es obligatoria"
+  }
 }
 ```
 
-## 💡 Recomendación: Usa Swagger UI
+**Error 500 - Error interno (mensaje genérico por seguridad):**
+```json
+{
+  "timestamp": "2025-11-25T10:00:00",
+  "status": 500,
+  "error": "Internal Server Error",
+  "message": "Ha ocurrido un error interno. Por favor contacte al administrador.",
+  "path": "/api/events"
+}
+```
 
-En lugar de cURL, usa Swagger UI para probar más fácilmente:
-1. Ve a http://localhost:8080/swagger-ui.html
-2. Expande un endpoint (ej: POST /api/venues)
+---
+
+## 🔒 Seguridad
+
+- ✅ **Mensajes de error genéricos**: No se exponen detalles SQL ni stack traces
+- ✅ **Validaciones**: Bean Validation en todos los DTOs
+- ✅ **Exception handling centralizado**: `GlobalExceptionHandler`
+
+---
+
+## 📝 Configuración
+
+### Base de Datos H2
+
+La aplicación usa H2 en memoria. Configuración en `application.properties`:
+
+```properties
+spring.datasource.url=jdbc:h2:mem:tiqueteradb
+spring.datasource.driverClassName=org.h2.Driver
+spring.h2.console.enabled=true
+spring.h2.console.path=/h2-console
+```
+
+**Acceder a H2 Console:**
+- URL: http://localhost:8080/h2-console
+- JDBC URL: `jdbc:h2:mem:tiqueteradb`
+- User: `sa`
+- Password: (vacío)
+
+---
+
+## 🧪 Testing
+
+### Probar con cURL
+
+```bash
+# Crear venue
+curl -X POST http://localhost:8080/api/venues \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Teatro","address":"Calle 1","city":"Bogotá","country":"Colombia","capacity":500}'
+
+# Crear evento
+curl -X POST http://localhost:8080/api/events \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Concierto","description":"Show","eventDate":"2025-12-15T20:00:00","categoria":"Música","venueId":1,"capacity":500,"price":50000}'
+
+# Listar eventos
+curl http://localhost:8080/api/events
+```
+
+### Probar con Swagger UI
+
+1. Ir a http://localhost:8080/swagger-ui.html
+2. Seleccionar un endpoint
 3. Click en "Try it out"
-4. Llena el JSON de ejemplo
+4. Completar el JSON de ejemplo
 5. Click en "Execute"
-6. Ve la respuesta inmediatamente con el código HTTP
 
-Swagger valida los datos antes de enviar y muestra errores claros.
+---
 
-## Notas y mejoras futuras
-- Persistencia real con JPA/Hibernate y base de datos.
-- Paginación, ordenamiento y filtros.
-- Tests unitarios e integración.
-- Seguridad (Spring Security, JWT).
-- Validaciones adicionales (rango de fechas, precio positivo con BigDecimal).
->>>>>>> master
+## 📊 Beneficios de esta Arquitectura
+
+### Mantenibilidad
+- Código organizado y fácil de entender
+- Responsabilidades claras
+- Cambios localizados
+
+### Testabilidad
+- Fácil crear tests unitarios con mocks
+- Casos de uso independientes
+- Puertos permiten inyectar implementaciones fake
+
+### Flexibilidad
+- Fácil cambiar de JPA a MongoDB
+- Fácil agregar nuevos adaptadores
+- Lógica de negocio protegida
+
+### Escalabilidad
+- Componentes desacoplados
+- Fácil agregar nuevas funcionalidades
+- Arquitectura preparada para microservicios
+
+---
+
+## 👥 Autor
+
+**Equipo Tiquetera**
+- Email: soporte@tiquetera.com
+
+---
+
+## 📄 Licencia
+
+Este proyecto está bajo la licencia Apache 2.0 - ver el archivo [LICENSE](LICENSE) para más detalles.
+
+---
+
+## 🔗 Enlaces Útiles
+
+- [Documentación Spring Boot](https://spring.io/projects/spring-boot)
+- [Arquitectura Hexagonal](https://en.wikipedia.org/wiki/Hexagonal_architecture_(software))
+- [Principios SOLID](https://en.wikipedia.org/wiki/SOLID)
+- [OpenAPI Specification](https://swagger.io/specification/)
+
+---
+
+**¿Preguntas o sugerencias?** Abre un issue en GitHub o contacta al equipo de desarrollo.
