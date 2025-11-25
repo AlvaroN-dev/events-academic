@@ -32,12 +32,15 @@ public class EventoResponse {
     @Schema(description = "Precio de la entrada", example = "80000.00")
     private Double price;
 
+    @Schema(description = "Categoría del evento", example = "Concierto")
+    private String categoria;
+
     // Constructores
     public EventoResponse() {
     }
 
     public EventoResponse(Long id, String name, String description, LocalDateTime eventDate,
-                          Long venueId, Integer capacity, Double price) {
+            Long venueId, Integer capacity, Double price, String categoria) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -45,6 +48,7 @@ public class EventoResponse {
         this.venueId = venueId;
         this.capacity = capacity;
         this.price = price;
+        this.categoria = categoria;
     }
 
     // Getters y Setters
@@ -102,5 +106,13 @@ public class EventoResponse {
 
     public void setPrice(Double price) {
         this.price = price;
+    }
+
+    public String getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(String categoria) {
+        this.categoria = categoria;
     }
 }

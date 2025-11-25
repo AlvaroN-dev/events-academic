@@ -23,6 +23,7 @@ public class VenueServiceImpl implements IVenueService {
 
     /**
      * Constructor con inyección de dependencias
+     * 
      * @param venueRepository Repositorio de venues
      */
     public VenueServiceImpl(VenueRepository venueRepository) {
@@ -54,19 +55,23 @@ public class VenueServiceImpl implements IVenueService {
         return venueRepository.findById(id)
                 .map(entity -> {
                     VenueMapper.updateEntityFromRequest(entity, request);
-                    VenueEntity updated = venueRepository.update(entity);
+                    VenueEntity updated = venueRepository.save(entity);
                     return VenueMapper.toResponse(updated);
                 });
     }
 
     @Override
     public boolean deleteVenue(Long id) {
-        return venueRepository.deleteById(id);
+        if (venueRepository.existsById(id)) {
+            venueRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 
     @Override
     public List<VenueResponse> getVenuesByCity(String city) {
-        return venueRepository.findByCity(city).stream()
+        return venueRepository.findByCityIgnoreCase(city).stream()
                 .map(VenueMapper::toResponse)
                 .collect(Collectors.toList());
     }

@@ -1,77 +1,56 @@
 package com.codeup.riwi.tiqueteracatalogo.domain.entity;
 
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Entidad de dominio que representa un Venue (Lugar).
- * Modelo principal del negocio sin anotaciones de persistencia (simulado en memoria).
+ * JPA Entity representing a Venue (Event Location).
+ * Mapped to 'venue' table in database.
  */
+@Entity
+@Table(name = "venue")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class VenueEntity {
-    
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, length = 200)
     private String name;
+
+    @Column(nullable = false, length = 300)
     private String address;
+
+    @Column(nullable = false, length = 100)
     private String city;
+
+    @Column(nullable = false, length = 100)
     private String country;
+
+    @Column(nullable = false)
     private Integer capacity;
 
-    // Constructores
-    public VenueEntity() {
-    }
+    // Bidirectional relationship with EventoEntity (optional, for navigation)
+    @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL, orphanRemoval = false)
+    private List<EventoEntity> events = new ArrayList<>();
 
-    public VenueEntity(Long id, String name, String address, String city, String country, Integer capacity) {
-        this.id = id;
-        this.name = name;
-        this.address = address;
-        this.city = city;
-        this.country = country;
-        this.capacity = capacity;
-    }
+    // Audit timestamps
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
-    // Getters y Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    public Integer getCapacity() {
-        return capacity;
-    }
-
-    public void setCapacity(Integer capacity) {
-        this.capacity = capacity;
-    }
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
 }

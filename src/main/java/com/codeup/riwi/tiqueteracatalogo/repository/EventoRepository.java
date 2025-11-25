@@ -1,110 +1,81 @@
 package com.codeup.riwi.tiqueteracatalogo.repository;
 
 import com.codeup.riwi.tiqueteracatalogo.domain.entity.EventoEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Repositorio para gestionar EventoEntity en memoria.
- * Simula persistencia sin base de datos real.
+ * JPA Repository for EventoEntity.
+ * Provides CRUD operations, custom query methods, and pagination/filtering
+ * support.
  */
 @Repository
-public class EventoRepository {
-    
-    // Almacenamiento en memoria
-    private final List<EventoEntity> eventos = new ArrayList<>();
-    private final AtomicLong idGenerator = new AtomicLong(1);
+public interface EventoRepository extends JpaRepository<EventoEntity, Long>, JpaSpecificationExecutor<EventoEntity> {
 
     /**
-     * Obtiene todos los eventos
-     * @return Lista de eventos
+     * Find events by venue ID
+     * 
+     * @param venueId Venue ID
+     * @return List of events for the specified venue
      */
-    public List<EventoEntity> findAll() {
-        return new ArrayList<>(eventos);
-    }
+    List<EventoEntity> findByVenue_Id(Long venueId);
 
     /**
-     * Busca un evento por ID
-     * @param id ID del evento
-     * @return Optional con evento si existe
+     * Check if an event with the given name exists
+     * 
+     * @param name Event name
+     * @return true if exists, false otherwise
      */
-    public Optional<EventoEntity> findById(Long id) {
-        return eventos.stream()
-                .filter(e -> e.getId().equals(id))
-                .findFirst();
-    }
+    boolean existsByName(String name);
 
     /**
-     * Busca eventos por venue ID
-     * @param venueId ID del venue
-     * @return Lista de eventos del venue
+     * Check if an event with the given name exists excluding a specific ID
+     * 
+     * @param name Event name
+     * @param id   Event ID to exclude
+     * @return true if exists, false otherwise
      */
-    public List<EventoEntity> findByVenueId(Long venueId) {
-        return eventos.stream()
-                .filter(e -> e.getVenueId().equals(venueId))
-                .toList();
-    }
+    boolean existsByNameAndIdNot(String name, Long id);
 
     /**
-     * Guarda un nuevo evento
-     * @param evento Evento a guardar
-     * @return Evento guardado con ID
+     * Find event by name (case-insensitive)
+     * 
+     * @param name Event name
+     * @return Optional with event if found
      */
-    public EventoEntity save(EventoEntity evento) {
-        if (evento.getId() == null) {
-            evento.setId(idGenerator.getAndIncrement());
-        }
-        eventos.add(evento);
-        return evento;
-    }
+    Optional<EventoEntity> findByNameIgnoreCase(String name);
 
     /**
-     * Actualiza un evento existente
-     * @param evento Evento a actualizar
-     * @return Evento actualizado
+     * Find events by venue city with pagination
+     * 
+     * @param city     City name
+     * @param pageable Pagination parameters
+     * @return Page of events
      */
-    public EventoEntity update(EventoEntity evento) {
-        Optional<EventoEntity> existing = findById(evento.getId());
-        if (existing.isPresent()) {
-            EventoEntity e = existing.get();
-            e.setName(evento.getName());
-            e.setDescription(evento.getDescription());
-            e.setEventDate(evento.getEventDate());
-            e.setVenueId(evento.getVenueId());
-            e.setCapacity(evento.getCapacity());
-            e.setPrice(evento.getPrice());
-            return e;
-        }
-        return null;
-    }
+    Page<EventoEntity> findByVenue_CityIgnoreCase(String city, Pageable pageable);
 
     /**
-     * Elimina evento por ID
-     * @param id ID del evento
-     * @return true si eliminó
+     * Find events by categoria with pagination
+     * 
+     * @param categoria Event categoria
+     * @param pageable  Pagination parameters
+     * @return Page of events
      */
-    public boolean deleteById(Long id) {
-        return eventos.removeIf(e -> e.getId().equals(id));
-    }
+    Page<EventoEntity> findByCategoriaIgnoreCase(String categoria, Pageable pageable);
 
     /**
-     * Verifica existencia por ID
-     * @param id ID a verificar
-     * @return true si existe
+     * Find events after a specific date with pagination
+     * 
+     * @param fecha    Start date
+     * @param pageable Pagination parameters
+     * @return Page of events
      */
-    public boolean existsById(Long id) {
-        return eventos.stream().anyMatch(e -> e.getId().equals(id));
-    }
-
-    /**
-     * Cuenta total de eventos
-     * @return Número de eventos
-     */
-    public long count() {
-        return eventos.size();
-    }
+    Page<EventoEntity> findByEventDateAfter(LocalDateTime fecha, Pageable pageable);
 }

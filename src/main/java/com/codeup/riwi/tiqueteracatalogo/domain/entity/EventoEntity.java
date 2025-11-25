@@ -1,90 +1,78 @@
 package com.codeup.riwi.tiqueteracatalogo.domain.entity;
 
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import java.time.LocalDateTime;
 
 /**
- * Entidad de dominio que representa un Evento.
- * Modelo principal del negocio sin anotaciones de persistencia (simulado en memoria).
+ * JPA Entity representing an Event.
+ * Mapped to 'evento' table in database with unique name constraint.
  */
+@Entity
+@Table(name = "evento", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_evento_name", columnNames = "name")
+})
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class EventoEntity {
-    
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, unique = true, length = 200)
     private String name;
+
+    @Column(length = 1000)
     private String description;
+
+    @Column(name = "event_date", nullable = false)
     private LocalDateTime eventDate;
-    private Long venueId;
+
+    @Column(nullable = false, length = 100)
+    private String categoria;
+
+    // ManyToOne relationship with VenueEntity
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "venue_id", nullable = false, foreignKey = @ForeignKey(name = "fk_evento_venue"))
+    private VenueEntity venue;
+
+    @Column(nullable = false)
     private Integer capacity;
+
+    @Column(nullable = false)
     private Double price;
 
-    // Constructores
-    public EventoEntity() {
-    }
+    // Audit timestamps
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
-    public EventoEntity(Long id, String name, String description, LocalDateTime eventDate,
-                        Long venueId, Integer capacity, Double price) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.eventDate = eventDate;
-        this.venueId = venueId;
-        this.capacity = capacity;
-        this.price = price;
-    }
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
 
-    // Getters y Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public LocalDateTime getEventDate() {
-        return eventDate;
-    }
-
-    public void setEventDate(LocalDateTime eventDate) {
-        this.eventDate = eventDate;
-    }
-
+    // Helper method to get venueId for backward compatibility with existing code
+    @Transient
     public Long getVenueId() {
-        return venueId;
+        return venue != null ? venue.getId() : null;
     }
 
+    // Helper method to set venueId for backward compatibility
     public void setVenueId(Long venueId) {
-        this.venueId = venueId;
-    }
-
-    public Integer getCapacity() {
-        return capacity;
-    }
-
-    public void setCapacity(Integer capacity) {
-        this.capacity = capacity;
-    }
-
-    public Double getPrice() {
-        return price;
-    }
-
-    public void setPrice(Double price) {
-        this.price = price;
+        if (venueId != null) {
+            if (this.venue == null) {
+                this.venue = new VenueEntity();
+            }
+            this.venue.setId(venueId);
+        } else {
+            this.venue = null;
+        }
     }
 }
