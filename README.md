@@ -1,10 +1,17 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # events-academic
 =======
 # TiqueteraCatalogo
 =======
 # TiqueteraCatalogo - Event Management API
 >>>>>>> 1194b46 (Update documentatio of the Realmed.md)
+=======
+# events-academic
+
+# TiqueteraCatalogo
+>>>>>>> 2c5d84c (Update README.md)
+>>>>>>> 3a50946 (Update README.md)
 
 A comprehensive RESTful API for managing events and venues, built with Spring Boot 3 and JPA persistence.
 
@@ -284,6 +291,7 @@ The API uses a global exception handler (`@RestControllerAdvice`) that returns c
 ## 📝 Examples
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## Notas y mejoras futuras
 - Persistencia real con JPA/Hibernate y base de datos.
 - Paginación, ordenamiento y filtros.
@@ -291,6 +299,8 @@ The API uses a global exception handler (`@RestControllerAdvice`) that returns c
 - Seguridad (Spring Security, JWT).
 - Validaciones adicionales (rango de fechas, precio positivo con BigDecimal).
 =======
+=======
+>>>>>>> 3a50946 (Update README.md)
 ### Create a Venue
 
 ```bash
@@ -477,11 +487,14 @@ Swagger validates data before sending and displays clear errors.
 
 This project is licensed under the Apache License 2.0.
 
-## 👥 Contact
 
+<<<<<<< HEAD
 For support or questions, contact: soporte@tiquetera.com
 
 ---
 
 **Built with ❤️ using Spring Boot**
 >>>>>>> 1194b46 (Update documentatio of the Realmed.md)
+=======
+---
+>>>>>>> 3a50946 (Update README.md)
