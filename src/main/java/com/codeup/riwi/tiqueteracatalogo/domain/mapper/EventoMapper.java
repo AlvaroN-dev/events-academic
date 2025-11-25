@@ -22,6 +22,7 @@ public class EventoMapper {
         entity.setVenueId(request.getVenueId());
         entity.setCapacity(request.getCapacity());
         entity.setPrice(request.getPrice());
+        entity.setCategoria(request.getCategoria());
         return entity;
     }
 
@@ -37,8 +38,8 @@ public class EventoMapper {
                 entity.getEventDate(),
                 entity.getVenueId(),
                 entity.getCapacity(),
-                entity.getPrice()
-        );
+                entity.getPrice(),
+                entity.getCategoria());
     }
 
     /**
@@ -52,5 +53,6 @@ public class EventoMapper {
         entity.setVenueId(request.getVenueId());
         entity.setCapacity(request.getCapacity());
         entity.setPrice(request.getPrice());
+        entity.setCategoria(request.getCategoria());
     }
 }
