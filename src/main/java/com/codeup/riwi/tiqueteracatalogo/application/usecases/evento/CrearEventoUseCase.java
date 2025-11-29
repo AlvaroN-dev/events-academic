@@ -3,10 +3,18 @@ package com.codeup.riwi.tiqueteracatalogo.application.usecases.evento;
 import com.codeup.riwi.tiqueteracatalogo.domain.models.Evento;
 import com.codeup.riwi.tiqueteracatalogo.domain.ports.out.EventoRepositoryPort;
 import com.codeup.riwi.tiqueteracatalogo.domain.ports.out.VenueRepositoryPort;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Use case for creating a new event.
  * Contains business logic and validation rules.
+ * 
+ * Transaction Configuration:
+ * - Propagation.REQUIRED: Joins existing transaction or creates new one
+ * - Isolation.READ_COMMITTED: Prevents dirty reads, good balance for writes
+ * - Rollback on any exception for data integrity
  */
 public class CrearEventoUseCase {
 
@@ -25,6 +33,11 @@ public class CrearEventoUseCase {
      * @return Created event
      * @throws IllegalArgumentException if validation fails
      */
+    @Transactional(
+        propagation = Propagation.REQUIRED,
+        isolation = Isolation.READ_COMMITTED,
+        rollbackFor = Exception.class
+    )
     public Evento ejecutar(Evento evento) {
         // Business rule: Venue must exist
         if (!venueRepository.existsById(evento.getVenueId())) {

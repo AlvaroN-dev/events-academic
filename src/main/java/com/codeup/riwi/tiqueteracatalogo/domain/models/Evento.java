@@ -1,11 +1,20 @@
 package com.codeup.riwi.tiqueteracatalogo.domain.models;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Pure domain model representing an Event.
  * No framework dependencies - just business logic.
+ * 
+ * Domain Relationships:
+ * - ManyToOne with Venue: An event belongs to exactly one venue
+ * - ManyToMany with Category: An event can have multiple categories/tags
+ * 
+ * Note: In hexagonal architecture, domain models are pure Java objects.
+ * The actual JPA relationships are defined in infrastructure layer entities.
  */
 public class Evento {
 
@@ -14,7 +23,10 @@ public class Evento {
     private String description;
     private LocalDateTime eventDate;
     private String categoria;
+    private EventStatus status = EventStatus.ACTIVE; // Default to active
     private Long venueId;
+    private Venue venue; // Reference to the venue domain object (for rich domain model)
+    private Set<Category> categories = new HashSet<>(); // ManyToMany with categories
     private Integer capacity;
     private Double price;
     private LocalDateTime createdAt;
@@ -22,6 +34,7 @@ public class Evento {
 
     // Default constructor
     public Evento() {
+        this.categories = new HashSet<>();
     }
 
     // Full constructor
@@ -38,6 +51,7 @@ public class Evento {
         this.price = price;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+        this.categories = new HashSet<>();
     }
 
     // Getters and Setters
@@ -81,12 +95,100 @@ public class Evento {
         this.categoria = categoria;
     }
 
+    public EventStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(EventStatus status) {
+        this.status = status != null ? status : EventStatus.ACTIVE;
+    }
+
+    /**
+     * Check if event is active
+     * @return true if status is ACTIVE
+     */
+    public boolean isActive() {
+        return status == EventStatus.ACTIVE;
+    }
+
+    /**
+     * Check if event is cancelled
+     * @return true if status is CANCELLED
+     */
+    public boolean isCancelled() {
+        return status == EventStatus.CANCELLED;
+    }
+
+    /**
+     * Cancel the event
+     */
+    public void cancel() {
+        this.status = EventStatus.CANCELLED;
+    }
+
+    /**
+     * Mark event as completed
+     */
+    public void complete() {
+        this.status = EventStatus.COMPLETED;
+    }
+
     public Long getVenueId() {
         return venueId;
     }
 
     public void setVenueId(Long venueId) {
         this.venueId = venueId;
+    }
+
+    public Venue getVenue() {
+        return venue;
+    }
+
+    public void setVenue(Venue venue) {
+        this.venue = venue;
+        if (venue != null) {
+            this.venueId = venue.getId();
+        }
+    }
+
+    public Set<Category> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(Set<Category> categories) {
+        this.categories = categories != null ? categories : new HashSet<>();
+    }
+
+    /**
+     * Add a category to this event
+     * @param category Category to add
+     */
+    public void addCategory(Category category) {
+        if (categories == null) {
+            categories = new HashSet<>();
+        }
+        categories.add(category);
+    }
+
+    /**
+     * Remove a category from this event
+     * @param category Category to remove
+     */
+    public void removeCategory(Category category) {
+        if (categories != null) {
+            categories.remove(category);
+        }
+    }
+
+    /**
+     * Check if event has a specific category
+     * @param categoryName Category name to check
+     * @return true if event has the category
+     */
+    public boolean hasCategory(String categoryName) {
+        return categories != null && categories.stream()
+                .anyMatch(c -> c.getName().equalsIgnoreCase(categoryName));
     }
 
     public Integer getCapacity() {

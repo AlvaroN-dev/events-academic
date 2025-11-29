@@ -2,11 +2,17 @@ package com.codeup.riwi.tiqueteracatalogo.application.usecases.venue;
 
 import com.codeup.riwi.tiqueteracatalogo.domain.models.Venue;
 import com.codeup.riwi.tiqueteracatalogo.domain.ports.out.VenueRepositoryPort;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 /**
  * Use case for listing all venues.
+ * 
+ * Transaction Configuration:
+ * - readOnly = true: Optimizes for read operations (no flush, cache optimization)
+ * - Propagation.SUPPORTS: Uses existing transaction if available, otherwise non-transactional
  */
 public class ListarVenuesUseCase {
 
@@ -21,6 +27,7 @@ public class ListarVenuesUseCase {
      * 
      * @return List of all venues
      */
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Venue> ejecutar() {
         return venueRepository.findAll();
     }
@@ -31,6 +38,7 @@ public class ListarVenuesUseCase {
      * @param city City name
      * @return List of venues in the city
      */
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<Venue> ejecutarPorCiudad(String city) {
         return venueRepository.findByCity(city);
     }
@@ -40,6 +48,7 @@ public class ListarVenuesUseCase {
      * 
      * @return Total number of venues
      */
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public long contar() {
         return venueRepository.count();
     }

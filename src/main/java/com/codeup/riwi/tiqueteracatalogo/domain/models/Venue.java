@@ -1,11 +1,19 @@
 package com.codeup.riwi.tiqueteracatalogo.domain.models;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
  * Pure domain model representing a Venue.
  * No framework dependencies - just business logic.
+ * 
+ * Domain Relationships:
+ * - OneToMany with Evento: A venue can host many events
+ * 
+ * Note: In hexagonal architecture, domain models are pure Java objects.
+ * The actual JPA relationships are defined in infrastructure layer entities.
  */
 public class Venue {
 
@@ -15,11 +23,13 @@ public class Venue {
     private String city;
     private String country;
     private Integer capacity;
+    private List<Evento> eventos = new ArrayList<>(); // OneToMany: Events hosted at this venue
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     // Default constructor
     public Venue() {
+        this.eventos = new ArrayList<>();
     }
 
     // Full constructor
@@ -33,6 +43,7 @@ public class Venue {
         this.capacity = capacity;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+        this.eventos = new ArrayList<>();
     }
 
     // Getters and Setters
@@ -82,6 +93,44 @@ public class Venue {
 
     public void setCapacity(Integer capacity) {
         this.capacity = capacity;
+    }
+
+    public List<Evento> getEventos() {
+        return eventos;
+    }
+
+    public void setEventos(List<Evento> eventos) {
+        this.eventos = eventos != null ? eventos : new ArrayList<>();
+    }
+
+    /**
+     * Add an event to this venue
+     * @param evento Event to add
+     */
+    public void addEvento(Evento evento) {
+        if (eventos == null) {
+            eventos = new ArrayList<>();
+        }
+        eventos.add(evento);
+        evento.setVenueId(this.id);
+    }
+
+    /**
+     * Remove an event from this venue
+     * @param evento Event to remove
+     */
+    public void removeEvento(Evento evento) {
+        if (eventos != null) {
+            eventos.remove(evento);
+        }
+    }
+
+    /**
+     * Get the count of events at this venue
+     * @return Number of events
+     */
+    public int getEventCount() {
+        return eventos != null ? eventos.size() : 0;
     }
 
     public LocalDateTime getCreatedAt() {

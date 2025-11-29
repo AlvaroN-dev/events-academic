@@ -3,11 +3,17 @@ package com.codeup.riwi.tiqueteracatalogo.application.usecases.evento;
 import com.codeup.riwi.tiqueteracatalogo.domain.models.Evento;
 import com.codeup.riwi.tiqueteracatalogo.domain.ports.out.EventoRepositoryPort;
 import com.codeup.riwi.tiqueteracatalogo.domain.excepcion.RecursoNoEncontradoException;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 /**
  * Use case for retrieving an event by ID.
+ * 
+ * Transaction Configuration:
+ * - readOnly = true: Optimizes for read operations (no flush, cache optimization)
+ * - Propagation.SUPPORTS: Uses existing transaction if available, otherwise non-transactional
  */
 public class ObtenerEventoUseCase {
 
@@ -24,6 +30,7 @@ public class ObtenerEventoUseCase {
      * @return Event if found
      * @throws RecursoNoEncontradoException if event not found
      */
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public Evento ejecutar(Long id) {
         return eventoRepository.findById(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Evento", id));
@@ -35,6 +42,7 @@ public class ObtenerEventoUseCase {
      * @param id Event ID
      * @return Optional containing event if found
      */
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public Optional<Evento> ejecutarOptional(Long id) {
         return eventoRepository.findById(id);
     }

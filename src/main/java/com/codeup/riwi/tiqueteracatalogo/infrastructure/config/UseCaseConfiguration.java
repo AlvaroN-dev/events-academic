@@ -6,13 +6,21 @@ import com.codeup.riwi.tiqueteracatalogo.domain.ports.out.EventoRepositoryPort;
 import com.codeup.riwi.tiqueteracatalogo.domain.ports.out.VenueRepositoryPort;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
  * Configuration class to wire use cases with their dependencies.
  * This is where we inject the repository ports (implemented by adapters)
  * into the use cases.
+ * 
+ * Transaction Management:
+ * - @EnableTransactionManagement ensures @Transactional works on use case methods
+ * - Use cases are Spring-managed beans, enabling proxy-based transaction handling
+ * - Transactions are defined at the use case level (application layer)
+ * - This follows hexagonal architecture: domain is pure, infrastructure handles tech concerns
  */
 @Configuration
+@EnableTransactionManagement
 public class UseCaseConfiguration {
 
     // ==================== EVENT USE CASES ====================
@@ -69,7 +77,9 @@ public class UseCaseConfiguration {
     }
 
     @Bean
-    public EliminarVenueUseCase eliminarVenueUseCase(VenueRepositoryPort venueRepository) {
-        return new EliminarVenueUseCase(venueRepository);
+    public EliminarVenueUseCase eliminarVenueUseCase(
+            VenueRepositoryPort venueRepository,
+            EventoRepositoryPort eventoRepository) {
+        return new EliminarVenueUseCase(venueRepository, eventoRepository);
     }
 }
