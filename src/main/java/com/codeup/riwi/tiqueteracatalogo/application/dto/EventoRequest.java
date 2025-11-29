@@ -1,45 +1,67 @@
 package com.codeup.riwi.tiqueteracatalogo.application.dto;
 
+import com.codeup.riwi.tiqueteracatalogo.application.validation.ValidationGroups.OnCreate;
+import com.codeup.riwi.tiqueteracatalogo.application.validation.ValidationGroups.OnUpdate;
+import com.codeup.riwi.tiqueteracatalogo.application.validation.constraints.FutureDate;
+import com.codeup.riwi.tiqueteracatalogo.application.validation.constraints.ValidPrice;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 
 import java.time.LocalDateTime;
 
+/**
+ * DTO for creating or updating an Event.
+ * Includes advanced Bean Validation with validation groups for different scenarios.
+ * 
+ * <p>Validation Groups:</p>
+ * <ul>
+ *   <li>{@link OnCreate} - Validations applied when creating a new event</li>
+ *   <li>{@link OnUpdate} - Validations applied when updating an existing event</li>
+ * </ul>
+ * 
+ * @author TiqueteraCatalogo Team
+ * @version 2.0
+ */
 @Schema(description = "Datos de entrada para crear o actualizar un evento")
 public class EventoRequest {
 
-    @NotBlank(message = "El nombre del evento es obligatorio")
-    @Size(min = 3, max = 200, message = "El nombre debe tener entre 3 y 200 caracteres")
+    @NotBlank(message = "{validation.event.name.required}", groups = {OnCreate.class, OnUpdate.class})
+    @Size(min = 3, max = 200, message = "{validation.event.name.size}", groups = {OnCreate.class, OnUpdate.class})
+    @Pattern(regexp = "^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\\s\\-_.,!¡¿?()]+$", 
+             message = "{validation.event.name.pattern}", 
+             groups = {OnCreate.class, OnUpdate.class})
     @Schema(description = "Nombre del evento", example = "Concierto Rock 2025", required = true)
     private String name;
 
-    @Size(max = 1000, message = "La descripción no puede exceder 1000 caracteres")
+    @Size(max = 1000, message = "{validation.event.description.size}", groups = {OnCreate.class, OnUpdate.class})
     @Schema(description = "Descripción detallada del evento", example = "Gran concierto de rock con bandas internacionales")
     private String description;
 
-    @NotNull(message = "La fecha del evento es obligatoria")
+    @NotNull(message = "{validation.event.date.required}", groups = {OnCreate.class, OnUpdate.class})
+    @FutureDate(minHoursAhead = 24, message = "{validation.event.date.future.hours}", groups = OnCreate.class)
+    @FutureDate(message = "{validation.event.date.future}", groups = OnUpdate.class)
     @Schema(description = "Fecha y hora del evento", example = "2025-12-15T20:00:00", required = true)
     private LocalDateTime eventDate;
 
-    @NotNull(message = "El venue ID es obligatorio")
-    @Positive(message = "El venue ID debe ser un número positivo")
+    @NotNull(message = "{validation.event.venueId.required}", groups = OnCreate.class)
+    @Positive(message = "{validation.event.venueId.positive}", groups = {OnCreate.class, OnUpdate.class})
     @Schema(description = "ID del venue donde se realizará el evento", example = "1", required = true)
     private Long venueId;
 
-    @NotNull(message = "La capacidad es obligatoria")
-    @Positive(message = "La capacidad debe ser mayor a 0")
-    @Max(value = 1000000, message = "La capacidad no puede exceder 1,000,000 personas")
+    @NotNull(message = "{validation.event.capacity.required}", groups = OnCreate.class)
+    @Positive(message = "{validation.event.capacity.positive}", groups = {OnCreate.class, OnUpdate.class})
+    @Max(value = 1000000, message = "{validation.event.capacity.max}", groups = {OnCreate.class, OnUpdate.class})
     @Schema(description = "Capacidad máxima del evento", example = "1000", required = true)
     private Integer capacity;
 
-    @NotNull(message = "El precio es obligatorio")
-    @Positive(message = "El precio debe ser mayor a 0")
-    @DecimalMax(value = "999999999.99", message = "El precio no puede exceder 999,999,999.99")
+    @NotNull(message = "{validation.event.price.required}", groups = OnCreate.class)
+    @ValidPrice(min = 0.0, max = 999999999.99, allowZero = true, 
+                message = "{validation.price.invalid}", groups = {OnCreate.class, OnUpdate.class})
     @Schema(description = "Precio de la entrada", example = "80000.00", required = true)
     private Double price;
 
-    @NotBlank(message = "La categoría es obligatoria")
-    @Size(min = 3, max = 100, message = "La categoría debe tener entre 3 y 100 caracteres")
+    @NotBlank(message = "{validation.event.category.required}", groups = OnCreate.class)
+    @Size(min = 3, max = 100, message = "{validation.event.category.size}", groups = {OnCreate.class, OnUpdate.class})
     @Schema(description = "Categoría del evento", example = "Concierto", required = true)
     private String categoria;
 

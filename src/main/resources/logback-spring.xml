@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="30 seconds">
+
+    <!-- ============================================================ -->
+    <!-- Properties and Variables -->
+    <!-- ============================================================ -->
+    
+    <!-- Application name for log identification -->
+    <property name="APP_NAME" value="tiquetera-catalog"/>
+    
+    <!-- Log file paths -->
+    <property name="LOG_PATH" value="${LOG_PATH:-logs}"/>
+    <property name="LOG_FILE" value="${LOG_PATH}/${APP_NAME}"/>
+    
+    <!-- Log retention settings -->
+    <property name="MAX_FILE_SIZE" value="50MB"/>
+    <property name="MAX_HISTORY" value="30"/>
+    <property name="TOTAL_SIZE_CAP" value="1GB"/>
+
+    <!-- ============================================================ -->
+    <!-- Structured Log Patterns -->
+    <!-- ============================================================ -->
+    
+    <!-- Console pattern with colors for development (human-readable) -->
+    <property name="CONSOLE_PATTERN" 
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) [%cyan(%X{traceId:-no-trace})] [%magenta(%X{method:-})] %yellow(%X{endpoint:-}) - %logger{36} : %msg%n"/>
+    
+    <!-- File pattern (structured, parseable) -->
+    <property name="FILE_PATTERN" 
+              value="%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} | %-5level | traceId=%X{traceId:-no-trace} | method=%X{method:-} | endpoint=%X{endpoint:-} | userId=%X{userId:-anonymous} | clientIp=%X{clientIp:-} | logger=%logger{40} | message=%msg%n"/>
+    
+    <!-- JSON pattern for production/log aggregation systems -->
+    <property name="JSON_PATTERN" 
+              value='{"timestamp":"%d{yyyy-MM-dd&apos;T&apos;HH:mm:ss.SSSXXX}","level":"%level","traceId":"%X{traceId:-no-trace}","requestId":"%X{requestId:-}","method":"%X{method:-}","endpoint":"%X{endpoint:-}","userId":"%X{userId:-anonymous}","clientIp":"%X{clientIp:-}","logger":"%logger","message":"%replace(%msg){&apos;"&apos;, &apos;\\"&apos;}","exception":"%replace(%ex{full}){&apos;\n&apos;, &apos;\\n&apos;}"}%n'/>
+
+    <!-- ============================================================ -->
+    <!-- Console Appender (Development) -->
+    <!-- ============================================================ -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- ============================================================ -->
+    <!-- File Appender (Application Logs) -->
+    <!-- ============================================================ -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_FILE}.log</file>
+        <encoder>
+            <pattern>${FILE_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_FILE}-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+            <totalSizeCap>${TOTAL_SIZE_CAP}</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!-- ============================================================ -->
+    <!-- JSON File Appender (For Log Aggregation) -->
+    <!-- ============================================================ -->
+    <appender name="JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_FILE}-json.log</file>
+        <encoder>
+            <pattern>${JSON_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_FILE}-json-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+            <totalSizeCap>${TOTAL_SIZE_CAP}</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!-- ============================================================ -->
+    <!-- Error File Appender (Only ERROR and above) -->
+    <!-- ============================================================ -->
+    <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_FILE}-error.log</file>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} | ERROR | traceId=%X{traceId:-no-trace} | endpoint=%X{endpoint:-} | userId=%X{userId:-anonymous} | clientIp=%X{clientIp:-} | logger=%logger | message=%msg%n%ex{full}%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_FILE}-error-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+            <totalSizeCap>${TOTAL_SIZE_CAP}</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <!-- ============================================================ -->
+    <!-- Async Appenders (Non-blocking logging) -->
+    <!-- ============================================================ -->
+    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>512</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <includeCallerData>true</includeCallerData>
+        <appender-ref ref="FILE"/>
+    </appender>
+
+    <appender name="ASYNC_JSON" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>512</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <includeCallerData>true</includeCallerData>
+        <appender-ref ref="JSON_FILE"/>
+    </appender>
+
+    <!-- ============================================================ -->
+    <!-- Logger Configurations -->
+    <!-- ============================================================ -->
+
+    <!-- Application loggers -->
+    <logger name="com.codeup.riwi.tiqueteracatalogo" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="ASYNC_FILE"/>
+        <appender-ref ref="ASYNC_JSON"/>
+        <appender-ref ref="ERROR_FILE"/>
+    </logger>
+
+    <!-- Request/Response logging -->
+    <logger name="com.codeup.riwi.tiqueteracatalogo.infrastructure.config.logging" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="ASYNC_FILE"/>
+        <appender-ref ref="ASYNC_JSON"/>
+    </logger>
+
+    <!-- Exception handler logging -->
+    <logger name="com.codeup.riwi.tiqueteracatalogo.infrastructure.controllers.advice" level="WARN" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="ASYNC_FILE"/>
+        <appender-ref ref="ASYNC_JSON"/>
+        <appender-ref ref="ERROR_FILE"/>
+    </logger>
+
+    <!-- Spring Framework -->
+    <logger name="org.springframework" level="INFO"/>
+    <logger name="org.springframework.web" level="INFO"/>
+    <logger name="org.springframework.security" level="INFO"/>
+    
+    <!-- Reduce noise from handled exceptions -->
+    <logger name="org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver" level="ERROR"/>
+
+    <!-- Hibernate/JPA - Reduce verbosity in production -->
+    <logger name="org.hibernate" level="WARN"/>
+    <logger name="org.hibernate.SQL" level="DEBUG"/>
+    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="WARN"/>
+    <logger name="org.hibernate.stat" level="INFO"/>
+
+    <!-- Connection pool -->
+    <logger name="com.zaxxer.hikari" level="INFO"/>
+
+    <!-- Flyway -->
+    <logger name="org.flywaydb" level="INFO"/>
+
+    <!-- OpenAPI/Swagger -->
+    <logger name="org.springdoc" level="WARN"/>
+    <logger name="io.swagger" level="WARN"/>
+
+    <!-- ============================================================ -->
+    <!-- Root Logger -->
+    <!-- ============================================================ -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="ASYNC_FILE"/>
+        <appender-ref ref="ERROR_FILE"/>
+    </root>
+
+    <!-- ============================================================ -->
+    <!-- Profile-specific configurations -->
+    <!-- ============================================================ -->
+    
+    <!-- Development profile: More verbose, console focused -->
+    <springProfile name="dev">
+        <logger name="com.codeup.riwi.tiqueteracatalogo" level="DEBUG"/>
+        <logger name="org.hibernate.SQL" level="DEBUG"/>
+        <logger name="org.springframework.web" level="DEBUG"/>
+    </springProfile>
+    
+    <!-- Test profile: Minimal logging -->
+    <springProfile name="test">
+        <logger name="com.codeup.riwi.tiqueteracatalogo" level="WARN"/>
+        <logger name="org.hibernate" level="ERROR"/>
+        <logger name="org.springframework" level="WARN"/>
+    </springProfile>
+    
+    <!-- Production profile: Structured, file-based, minimal console -->
+    <springProfile name="prod,production">
+        <logger name="com.codeup.riwi.tiqueteracatalogo" level="INFO"/>
+        <logger name="org.hibernate.SQL" level="WARN"/>
+        <logger name="org.hibernate.stat" level="WARN"/>
+        <logger name="org.springframework" level="WARN"/>
+        
+        <root level="WARN">
+            <appender-ref ref="ASYNC_FILE"/>
+            <appender-ref ref="ASYNC_JSON"/>
+            <appender-ref ref="ERROR_FILE"/>
+        </root>
+    </springProfile>
+
+</configuration>
