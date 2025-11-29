@@ -29,8 +29,6 @@ C:\Users\anonimo\Videos\TiqueteraCatalogo\src\main\java\com\codeup\riwi\tiqueter
 C:\Users\anonimo\Videos\TiqueteraCatalogo\src\main\java\com\codeup\riwi\tiqueteracatalogo\application\validation\constraints\ValidDateRange.java
 C:\Users\anonimo\Videos\TiqueteraCatalogo\src\main\java\com\codeup\riwi\tiqueteracatalogo\application\validation\constraints\ValidPrice.java
 C:\Users\anonimo\Videos\TiqueteraCatalogo\src\main\java\com\codeup\riwi\tiqueteracatalogo\application\validation\ValidationGroups.java
-C:\Users\anonimo\Videos\TiqueteraCatalogo\src\main\java\com\codeup\riwi\tiqueteracatalogo\domain\excepcion\BusinessRuleViolationException.java
-C:\Users\anonimo\Videos\TiqueteraCatalogo\src\main\java\com\codeup\riwi\tiqueteracatalogo\domain\excepcion\ConflictException.java
 C:\Users\anonimo\Videos\TiqueteraCatalogo\src\main\java\com\codeup\riwi\tiqueteracatalogo\domain\excepcion\RecursoNoEncontradoException.java
 C:\Users\anonimo\Videos\TiqueteraCatalogo\src\main\java\com\codeup\riwi\tiqueteracatalogo\domain\models\AuthResult.java
 C:\Users\anonimo\Videos\TiqueteraCatalogo\src\main\java\com\codeup\riwi\tiqueteracatalogo\domain\models\Category.java

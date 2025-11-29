@@ -16,7 +16,6 @@ com\codeup\riwi\tiqueteracatalogo\infrastructure\config\UseCaseConfiguration.cla
 com\codeup\riwi\tiqueteracatalogo\application\validation\constraints\FutureDate$List.class
 com\codeup\riwi\tiqueteracatalogo\infrastructure\config\logging\LoggingService.class
 com\codeup\riwi\tiqueteracatalogo\application\validation\constraints\ValidDateRange$List.class
-com\codeup\riwi\tiqueteracatalogo\domain\excepcion\ConflictException.class
 com\codeup\riwi\tiqueteracatalogo\domain\models\RegistroUsuario.class
 com\codeup\riwi\tiqueteracatalogo\infrastructure\config\security\SecurityConfig.class
 com\codeup\riwi\tiqueteracatalogo\infrastructure\config\security\CustomUserDetailsService.class
@@ -41,7 +40,6 @@ com\codeup\riwi\tiqueteracatalogo\domain\models\Evento.class
 com\codeup\riwi\tiqueteracatalogo\application\validation\constraints\ValidPrice.class
 com\codeup\riwi\tiqueteracatalogo\domain\ports\out\UserRepositoryPort$UserDomainData$Builder.class
 com\codeup\riwi\tiqueteracatalogo\infrastructure\repositories\CategoryJpaRepository.class
-com\codeup\riwi\tiqueteracatalogo\domain\excepcion\BusinessRuleViolationException.class
 com\codeup\riwi\tiqueteracatalogo\infrastructure\dto\auth\LoginRequest$LoginRequestBuilder.class
 com\codeup\riwi\tiqueteracatalogo\infrastructure\config\security\AuthenticationService.class
 com\codeup\riwi\tiqueteracatalogo\application\validation\ValidationGroups$Always.class
